@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CHIP-8</title>
+</head>
+
+<body>
+    <input type="file">
+    <canvas width="1" height="1"></canvas>
+    <p id="debug"></p>
+
+    <script src="./main-old.js"></script>
+    <script>
+        let input = document.querySelector("input[type='file']");
+        let canvas = document.querySelector("canvas");
+
+        canvas.width = 64 * DISPLAY_SCALE;
+        canvas.height = 32 * DISPLAY_SCALE;
+
+        var c = canvas.getContext("2d");
+        
+        let chip8 = new Chip8(c); // = new Chip8(c);
+
+        input.onchange = () => {
+            let fr = new FileReader();
+            chip8 = new Chip8(c);
+
+            fr.onload = () => {
+                let data = new Uint8Array(fr.result);
+                chip8.loadRom(data);
+            }
+
+            fr.readAsArrayBuffer(input.files[0]);
+        }
+        
+        function update() {
+                chip8.run();
+
+                document.getElementById("debug").innerHTML = "PC: "+chip8.pc+"<br>"+"Registers: [" + chip8.v + "]<br>"
+                + "SP: " + chip8.sp + " Stack: [" + chip8.stack + "]<br>"
+                + "I: " + chip8.i + " DT: " + chip8.dt  + " ST: " + chip8.st;
+        }
+
+        setInterval(update, 1000 / 540);
+    </script>
+</body>
+</html>
