@@ -153,7 +153,7 @@ const opcodes = {
     },
 
     op_ExA1(x) {
-        // TODO: change
+        // TODO: add
     },
 
     op_Fx07(x) {
@@ -161,7 +161,7 @@ const opcodes = {
     },
 
     op_Fx0A(x) {
-        // TODO: change
+        // TODO: add
     },
 
     op_Fx15(x) {
@@ -181,7 +181,7 @@ const opcodes = {
     },
 
     op_Fx33(x) {
-        // TODO: change
+        // TODO: add
     },
 
     op_Fx55(x) {
