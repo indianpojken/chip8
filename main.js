@@ -34,6 +34,7 @@ const resolution = {
 const opcodes = {
     cpu: undefined,
     display: undefined,
+    input: undefined,
 
     op_00E0() {
         for (let y in this.display.buffer) {
@@ -149,11 +150,11 @@ const opcodes = {
     },
 
     op_Ex9E(x) {
-        // TODO: add
+        if (this.input.keyDown(this.cpu.v[x].toString(16))) this.cpu.pc += 2;
     },
 
     op_ExA1(x) {
-        // TODO: add
+        if (!this.input.keyDown(this.cpu.v[x].toString(16))) this.cpu.pc += 2;
     },
 
     op_Fx07(x) {
@@ -161,7 +162,16 @@ const opcodes = {
     },
 
     op_Fx0A(x) {
-        // TODO: add
+        let keyPressed = false; // I can't come up with a better solution, atm.
+
+        keypad.forEach(key => {
+            if (this.input.keyDown(key.keypad)) {
+                this.cpu.v[x] = parseInt(key.keypad, 16);
+                keyPressed = true;
+            }
+        });
+
+        if (!keyPressed) this.cpu.pc -= 2;
     },
 
     op_Fx15(x) {
@@ -218,10 +228,12 @@ class Chip8 {
         };
 
         this.display = new Display();
+        this.input = new Input();
 
         this.#opcodes = opcodes;
         this.#opcodes.cpu = this.cpu;
         this.#opcodes.display = this.display;
+        this.#opcodes.input = this.input;
 
         this.#loadFont();
     }
@@ -281,7 +293,7 @@ class Chip8 {
                     case 0x3: { this.#opcodes.op_8xy3(argument.x, argument.y); break; }
                     case 0x4: { this.#opcodes.op_8xy4(argument.x, argument.y); break; }
                     case 0x5: { this.#opcodes.op_8xy5(argument.x, argument.y); break; }
-                    case 0x5: { this.#opcodes.op_8xy6(argument.x, argument.y); break; }
+                    case 0x6: { this.#opcodes.op_8xy6(argument.x, argument.y); break; }
                     case 0x7: { this.#opcodes.op_8xy7(argument.x, argument.y); break; }
                     case 0xE: { this.#opcodes.op_8xyE(argument.x, argument.y); break; }
                     default: console.log(error);
@@ -356,56 +368,59 @@ class Display {
     }
 }
 
-// This has not been implemented yet in this version
+/*
+1 2 3 C
+4 5 6 D
+7 8 9 E
+A 0 B F
+*/
+
 const keypad = [
-    /*
-    1 2 3 C
-    4 5 6 D
-    7 8 9 E
-    A 0 B F
-    */
+    {keycode: "Digit1", keypad: "1"},
+    {keycode: "Digit2", keypad: "2"},
+    {keycode: "Digit3", keypad: "3"},
+    {keycode: "Digit4", keypad: "C"},
 
-    {key: "Digit1", keypad: "1", value: 0x1},
-    {key: "Digit2", keypad: "2", value: 0x2},
-    {key: "Digit3", keypad: "3", value: 0x3},
-    {key: "Digit4", keypad: "C", value: 0xC},
+    {keycode: "KeyQ", keypad: "4"},
+    {keycode: "KeyW", keypad: "5"},
+    {keycode: "KeyE", keypad: "6"},
+    {keycode: "KeyR", keypad: "D"},
 
-    {key: "KeyQ", keypad: "4", value: 0x4},
-    {key: "KeyW", keypad: "5", value: 0x5},
-    {key: "KeyE", keypad: "6", value: 0x6},
-    {key: "KeyR", keypad: "D", value: 0xD},
-
-    {key: "KeyA", keypad: "4", value: 0x4},
-    {key: "KeyS", keypad: "5", value: 0x5},
-    {key: "KeyD", keypad: "6", value: 0x6},
-    {key: "KeyF", keypad: "E", value: 0xE},
+    {keycode: "KeyA", keypad: "4",},
+    {keycode: "KeyS", keypad: "5",},
+    {keycode: "KeyD", keypad: "6",},
+    {keycode: "KeyF", keypad: "E",},
 ];
 
 class Input {
     #keybinds;
-    #keys;
+    #keyState;
 
     constructor() {
         this.#keybinds = new Map();
-        this.#keys = new Map();
+        this.#keyState = new Map();
 
         document.addEventListener("keydown", e => this.#handleKeyDown(e));
         document.addEventListener("keyup", e => this.#handleKeyUp(e));
+
+        keypad.forEach(key => {
+            this.#bindKey(key.keycode, key.keypad)
+        });
     }
 
-    bindKey(code, name) {
-        this.#keybinds.set(code, name);
-        this.#keys.set(name, false);
+    #bindKey(keycode, keypad) {
+        this.#keybinds.set(keycode, keypad);
+        this.#keyState.set(keypad, false);
     }
 
-    keyDown(keybind) {
-        return this.#keys.get(keybind);
+    keyDown(key) {
+        return this.#keyState.get(key);
     }
 
     #handleKeyDown(event) {
         for (let k of this.#keybinds.keys()) {
             if (event.code === k) {
-                this.#keys.set(this.#keybinds.get(k), true);
+                this.#keyState.set(this.#keybinds.get(k), true);
             }
         }
     }
@@ -413,7 +428,7 @@ class Input {
     #handleKeyUp(event) {
         for (let k of this.#keybinds.keys()) {
             if (event.code === k) {
-                this.#keys.set(this.#keybinds.get(k), false);
+                this.#keyState.set(this.#keybinds.get(k), false);
             }
         }
     }
