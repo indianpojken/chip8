@@ -6,3 +6,7 @@
  - https://javascript.info/
  - http://www.cs.columbia.edu/~sedwards/classes/2016/4840-spring/designs/Chip8.pdf
 
+**Todo**
+
+ - Add audio.
+ - Display isn't 100% correct.
