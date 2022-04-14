@@ -150,11 +150,15 @@ const opcodes = {
     },
 
     op_Ex9E(x) {
-        if (this.input.keyDown(this.cpu.v[x].toString(16))) this.cpu.pc += 2;
+        if (this.input.keyDown(this.cpu.v[x].toString(16))) {
+            this.cpu.pc += 2;
+        }
     },
 
     op_ExA1(x) {
-        if (!this.input.keyDown(this.cpu.v[x].toString(16))) this.cpu.pc += 2;
+        if (!this.input.keyDown(this.cpu.v[x].toString(16))) {
+            this.cpu.pc += 2;
+        }
     },
 
     op_Fx07(x) {
@@ -206,6 +210,7 @@ const opcodes = {
         for (let reg = 0; reg <= x; reg++) {
             this.cpu.v[reg] = this.cpu.memory[this.cpu.i + reg]
         }
+
         this.cpu.i += x + 1;
     },
 };
@@ -262,7 +267,7 @@ class Chip8 {
             n: (instruction & 0x000f),
             kk: (instruction & 0x00ff),
             nnn: (instruction & 0x0fff)
-        }
+        };
 
         this.cpu.pc += 2;
 
@@ -343,7 +348,7 @@ class Display {
         this.graphics = {
             canvas: document.querySelector("canvas"),
             context: document.querySelector("canvas").getContext("2d"),
-        }
+        };
 
         this.buffer = new Array(resolution.height).fill(0).map(() =>
             new Array(resolution.width).fill(0)
@@ -356,8 +361,11 @@ class Display {
     render() {
         for (let y in this.buffer) {
             for (let x in this.buffer[y]) {
-                if (this.buffer[y][x]) this.graphics.context.fillStyle = "white";
-                else this.graphics.context.fillStyle = "black";
+                if (this.buffer[y][x]) {
+                    this.graphics.context.fillStyle = "white";
+                } else {
+                    this.graphics.context.fillStyle = "black";
+                }
 
                 this.graphics.context.fillRect(
                     x * resolution.scale, y * resolution.scale,
@@ -368,28 +376,26 @@ class Display {
     }
 }
 
-/*
-1 2 3 C
-4 5 6 D
-7 8 9 E
-A 0 B F
-*/
-
 const keypad = [
-    {keycode: "Digit1", keypad: "1"},
-    {keycode: "Digit2", keypad: "2"},
-    {keycode: "Digit3", keypad: "3"},
-    {keycode: "Digit4", keypad: "C"},
+    { keycode: "Digit1", keypad: "1" },
+    { keycode: "Digit2", keypad: "2" },
+    { keycode: "Digit3", keypad: "3" },
+    { keycode: "Digit4", keypad: "C" },
 
-    {keycode: "KeyQ", keypad: "4"},
-    {keycode: "KeyW", keypad: "5"},
-    {keycode: "KeyE", keypad: "6"},
-    {keycode: "KeyR", keypad: "D"},
+    { keycode: "KeyQ", keypad: "4" },
+    { keycode: "KeyW", keypad: "5" },
+    { keycode: "KeyE", keypad: "6" },
+    { keycode: "KeyR", keypad: "D" },
 
-    {keycode: "KeyA", keypad: "4",},
-    {keycode: "KeyS", keypad: "5",},
-    {keycode: "KeyD", keypad: "6",},
-    {keycode: "KeyF", keypad: "E",},
+    { keycode: "KeyA", keypad: "7", },
+    { keycode: "KeyS", keypad: "8", },
+    { keycode: "KeyD", keypad: "9", },
+    { keycode: "KeyF", keypad: "E", },
+    
+    { keycode: "KeyZ", keypad: "A", },
+    { keycode: "KeyX", keypad: "0", },
+    { keycode: "KeyC", keypad: "B", },
+    { keycode: "KeyV", keypad: "F", },
 ];
 
 class Input {
